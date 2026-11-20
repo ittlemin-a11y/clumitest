@@ -8,6 +8,7 @@ import { Clumi } from './objects/clumi.js';
 import { PROP_META } from './objects/propFactory.js';
 import { createWeatherSystem, ClumiBurst } from './systems/particles.js';
 import { Placement } from './systems/placement.js';
+import { MiniGame } from './systems/minigame.js';
 import { captureIsland } from './systems/capture.js';
 import { loadState, saveState } from './systems/storage.js';
 import { Hud } from './ui/hud.js';
@@ -308,6 +309,30 @@ const hud = new Hud({
     persist();
     hud.toast('기본 컬러로 돌아갔어요');
   },
+  onMiniGameStart: () => {
+    placement.cancelPlacing();
+    placement.select(null);
+    hud.setPlacing(null);
+    hud.setSelected(null);
+    hud.closeTray();
+    hud.showMiniGameBar(true);
+    minigame.start();
+    hud.toast('떨어지는 구름 방울과 별을 터치하세요! (먹구름 주의)', 2400);
+  },
+  onMiniGameQuit: () => {
+    minigame.stop(true);
+    hud.showMiniGameBar(false);
+    hud.toast('미니게임을 종료했어요', 1500);
+  },
+});
+
+const minigame = new MiniGame({
+  scene,
+  burst,
+  clumi,
+  getEmotionColor: () => currentColor(),
+  onUpdate: (info) => hud.updateMiniGame(info),
+  onEnd: (res) => hud.showMiniGameResult(res),
 });
 
 /* --------------------------------------------------------------- placement */
@@ -317,7 +342,7 @@ placement = new Placement({
   layer: propLayer,
   grass: island.grass,
   objectRoot: islandRoot,
-  canInteract: () => state.started,
+  canInteract: () => state.started && !minigame.active,
   onChange: () => persist(),
   onSelect: (item) => {
     hud.setSelected(item);
@@ -498,6 +523,15 @@ canvas.addEventListener('pointerup', (e) => {
   pointer.x = ((e.clientX - r.left) / r.width) * 2 - 1;
   pointer.y = -((e.clientY - r.top) / r.height) * 2 + 1;
   raycaster.setFromCamera(pointer, camera);
+
+  if (minigame.active) {
+    const mgHits = raycaster.intersectObjects(minigame.getHitboxes(), false);
+    if (mgHits.length) {
+      minigame.hit(mgHits[0].object);
+      return;
+    }
+  }
+
   const hits = raycaster.intersectObject(clumi.hitbox, false);
   if (hits.length) {
     clumi.react();
@@ -533,6 +567,7 @@ function frame() {
 
   clumi.update(dt, elapsed, heightAt, 1.75, camera);
   placement.update(dt, elapsed);
+  minigame.update(dt, elapsed);
   burst.update(dt);
 
   if (weather) {

@@ -320,6 +320,68 @@ export function createIsland() {
     group.add(patches);
   }
 
+  // 디딤돌 오솔길 (작은 집에서 중앙 쪽으로 이어지는 아기자기한 돌길)
+  {
+    const stoneCoords = [
+      [1.85, 0.85, 0.22],
+      [1.45, 0.72, 0.18],
+      [1.05, 0.56, 0.21],
+      [0.68, 0.42, 0.17],
+      [0.32, 0.26, 0.16],
+      [-0.55, 0.85, 0.19],
+      [-0.95, 1.08, 0.22],
+      [-1.38, 1.25, 0.18],
+    ];
+    const geos = stoneCoords.map(([x, z, r]) => {
+      const g = new THREE.CylinderGeometry(r, r * 1.08, 0.05, 10);
+      g.applyMatrix4(
+        new THREE.Matrix4().compose(
+          new THREE.Vector3(x, heightAt(x, z) + 0.012, z),
+          new THREE.Quaternion().setFromEuler(new THREE.Euler(0, x * 2, 0)),
+          new THREE.Vector3(1.15, 1, 0.88)
+        )
+      );
+      return g;
+    });
+    const stones = new THREE.Mesh(
+      mergeGeometries(geos, false),
+      new THREE.MeshStandardMaterial({ color: new THREE.Color('#EFE6D5'), roughness: 0.92 })
+    );
+    geos.forEach((g) => g.dispose());
+    stones.receiveShadow = true;
+    group.add(stones);
+  }
+
+  // 작은 정원 가로등 (중앙 옆 따뜻한 포인트)
+  {
+    const lx = -1.25;
+    const lz = 0.65;
+    const ly = heightAt(lx, lz);
+    const lanternGroup = new THREE.Group();
+    lanternGroup.position.set(lx, ly, lz);
+    const woodMat = new THREE.MeshStandardMaterial({ color: new THREE.Color('#9D7A58'), roughness: 0.85 });
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.038, 0.55, 8), woodMat);
+    post.position.y = 0.27;
+    post.castShadow = true;
+    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.18, 8), woodMat);
+    arm.rotation.z = Math.PI / 2;
+    arm.position.set(0.08, 0.52, 0);
+    const bulb = new THREE.Mesh(
+      new THREE.SphereGeometry(0.065, 12, 10),
+      new THREE.MeshStandardMaterial({
+        color: new THREE.Color('#FFF3C4'),
+        emissive: new THREE.Color('#FFD166'),
+        emissiveIntensity: 0.75,
+        roughness: 0.3,
+      })
+    );
+    bulb.position.set(0.15, 0.45, 0);
+    const cap = new THREE.Mesh(new THREE.ConeGeometry(0.085, 0.06, 8), woodMat);
+    cap.position.set(0.15, 0.51, 0);
+    lanternGroup.add(post, arm, bulb, cap);
+    group.add(lanternGroup);
+  }
+
   /* ---- 주변을 떠다니는 구름 ---- */
   const ambientClouds = new THREE.Group();
   ambientClouds.name = 'ambient-clouds';

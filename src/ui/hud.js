@@ -26,8 +26,20 @@ export class Hud {
       hint: $('hintPill'),
       toast: $('toast'),
       infoBtn: $('infoBtn'),
+      gameBtn: $('gameBtn'),
       propsBtn: $('propsBtn'),
       shotBtn: $('shotBtn'),
+      minigameBar: $('minigameBar'),
+      mgTime: $('mgTime'),
+      mgScore: $('mgScore'),
+      mgCombo: $('mgCombo'),
+      mgQuitBtn: $('mgQuitBtn'),
+      mgOverlay: $('mgOverlay'),
+      mgCloseBtn: $('mgCloseBtn'),
+      mgFinalScore: $('mgFinalScore'),
+      mgBestText: $('mgBestText'),
+      mgAgainBtn: $('mgAgainBtn'),
+      mgBackBtn: $('mgBackBtn'),
       tray: $('tray'),
       trayClose: $('trayClose'),
       propGrid: $('propGrid'),
@@ -97,6 +109,14 @@ export class Hud {
       if (ev.target === e.infoOverlay) this.closeInfo();
     });
     e.propsBtn.addEventListener('click', () => this.toggleTray());
+    e.gameBtn.addEventListener('click', () => this.h.onMiniGameStart());
+    e.mgQuitBtn.addEventListener('click', () => this.h.onMiniGameQuit());
+    e.mgCloseBtn.addEventListener('click', () => this.closeMiniGameResult());
+    e.mgBackBtn.addEventListener('click', () => this.closeMiniGameResult());
+    e.mgAgainBtn.addEventListener('click', () => {
+      this.closeMiniGameResult();
+      this.h.onMiniGameStart();
+    });
     e.trayClose.addEventListener('click', () => this.closeTray());
     e.shotBtn.addEventListener('click', () => this.h.onCapture());
     e.deleteBtn.addEventListener('click', () => this.h.onDelete());
@@ -231,6 +251,29 @@ export class Hud {
     this.resetArmed = false;
     this.el.resetBtn.textContent = '전체 초기화';
     this.el.resetBtn.style.color = '';
+  }
+
+  showMiniGameBar(visible) {
+    this.el.minigameBar.classList.toggle('visible', visible);
+  }
+
+  updateMiniGame({ timeLeft, score, combo }) {
+    this.el.mgTime.textContent = `⏱ ${Math.max(0, timeLeft)}s`;
+    this.el.mgScore.textContent = `✨ ${score}점`;
+    this.el.mgCombo.textContent = combo >= 2 ? `🔥 ${combo}콤보` : '';
+  }
+
+  showMiniGameResult({ score, best, isNewBest }) {
+    this.showMiniGameBar(false);
+    this.el.mgFinalScore.textContent = String(score);
+    this.el.mgBestText.textContent = isNewBest ? `🎉 신기록! 최고 ${best}점` : `최고 기록 ${best}점`;
+    this.el.mgOverlay.classList.add('on');
+    this.el.mgOverlay.setAttribute('aria-hidden', 'false');
+  }
+
+  closeMiniGameResult() {
+    this.el.mgOverlay.classList.remove('on');
+    this.el.mgOverlay.setAttribute('aria-hidden', 'true');
   }
 }
 

@@ -141,7 +141,7 @@ export class Clumi {
     this.emblemType = emblem;
 
     this.headMat = toyMaterial(color);
-    this.bodyMat = toyMaterial(CREAM);
+    this.bodyMat = this.headMat;
     this.tailMat = new THREE.MeshStandardMaterial({ color: new THREE.Color('#FFFFFF'), roughness: 0.9 });
 
     this.bob = new THREE.Group();
@@ -158,16 +158,15 @@ export class Clumi {
     body.receiveShadow = true;
     this.bodyGroup.add(body);
 
-    /* ---- 머리 (구름 실루엣) ---- */
-    const headParts = [{ geo: new THREE.SphereGeometry(0.54, 32, 26), pos: [0, 0, 0], scale: [1.03, 1, 0.98] }];
-    const ringA = 10;
-    for (let i = 0; i < ringA; i++) {
-      const a = (i / ringA) * Math.PI * 2;
-      const r = 0.468;
-      headParts.push({
-        geo: new THREE.SphereGeometry(0.123, 14, 12),
-        pos: [Math.cos(a) * r, -0.075 + Math.sin(a * 2) * 0.012, Math.sin(a) * r * 0.985],
-      });
+    /* ---- 머리 (원화 비율의 폭신한 구름 실루엣) ---- */
+    const headParts = [
+      { geo: new THREE.SphereGeometry(0.53, 36, 28), pos: [0, 0.02, 0], scale: [1.14, 0.90, 0.96] },
+    ];
+    for (const s of [-1, 1]) {
+      // 양볼 3단 구름 곡선 (부드럽게 겹쳐 울퉁불퉁하지 않게)
+      headParts.push({ geo: new THREE.SphereGeometry(0.22, 20, 16), pos: [s * 0.44, 0.09, 0.02], scale: [0.95, 0.92, 0.88] });
+      headParts.push({ geo: new THREE.SphereGeometry(0.24, 20, 16), pos: [s * 0.48, -0.04, 0.04], scale: [0.98, 0.92, 0.9] });
+      headParts.push({ geo: new THREE.SphereGeometry(0.20, 20, 16), pos: [s * 0.40, -0.17, 0.03], scale: [0.95, 0.88, 0.88] });
     }
     const headGeo = mergeParts(headParts);
     headParts.forEach((p) => p.geo.dispose());
@@ -176,7 +175,7 @@ export class Clumi {
     this.head.receiveShadow = true;
 
     this.headGroup = new THREE.Group();
-    this.headGroup.position.y = 1.38;
+    this.headGroup.position.y = 1.35;
     this.headGroup.add(this.head);
     this.bodyGroup.add(this.headGroup);
 
@@ -184,14 +183,14 @@ export class Clumi {
     this.ears = [];
     for (const s of [-1, 1]) {
       const earParts = [
-        { geo: new THREE.CapsuleGeometry(0.15, 0.62, 8, 20), pos: [0, 0.22, 0], scale: [1, 1, 0.62] },
+        { geo: new THREE.CapsuleGeometry(0.145, 0.58, 8, 20), pos: [0, 0.22, 0], scale: [1, 1, 0.66] },
       ];
       const earGeo = mergeParts(earParts);
       earParts.forEach((p) => p.geo.dispose());
       const ear = new THREE.Mesh(earGeo, this.headMat);
-      ear.position.set(s * 0.2, 0.42, -0.03);
-      ear.rotation.z = s * -0.12;
-      ear.rotation.x = -0.06;
+      ear.position.set(s * 0.175, 0.42, -0.02);
+      ear.rotation.z = s * -0.09;
+      ear.rotation.x = -0.05;
       ear.castShadow = true;
       ear.userData.base = ear.rotation.z;
       ear.userData.side = s;
@@ -199,55 +198,43 @@ export class Clumi {
       this.ears.push(ear);
     }
 
-    /* ---- 얼굴 ---- */
-    const eyeMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(INK), roughness: 0.22 });
+    /* ---- 얼굴 (원화 비율: 눈·코·:3 입을 오밀조밀하게) ---- */
+    const eyeMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(INK), roughness: 0.18 });
     const glintMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
     this.eyes = [];
     for (const s of [-1, 1]) {
-      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.088, 22, 18), eyeMat);
-      eye.scale.set(0.95, 1.15, 0.42);
-      eye.position.set(s * 0.175, 0.035, 0.472);
+      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.076, 22, 18), eyeMat);
+      eye.scale.set(0.92, 1.16, 0.45);
+      eye.position.set(s * 0.132, -0.02, 0.486);
       this.headGroup.add(eye);
-      const glint = new THREE.Mesh(new THREE.SphereGeometry(0.028, 10, 10), glintMat);
-      glint.position.set(s * 0.175 + 0.028, 0.08, 0.512);
+      const glint = new THREE.Mesh(new THREE.SphereGeometry(0.022, 10, 10), glintMat);
+      glint.position.set(s * 0.132 - 0.018, 0.015, 0.522);
       glint.scale.set(1, 1, 0.5);
       this.headGroup.add(glint);
       this.eyes.push(eye, glint);
     }
-    // 점 코
-    const nose = new THREE.Mesh(new THREE.SphereGeometry(0.033, 14, 12), eyeMat);
-    nose.scale.set(1.5, 1, 0.6);
-    nose.position.set(0, -0.088, 0.522);
+    // 코
+    const nose = new THREE.Mesh(new THREE.SphereGeometry(0.028, 14, 12), eyeMat);
+    nose.scale.set(1.25, 0.92, 0.6);
+    nose.position.set(0, -0.042, 0.525);
     this.headGroup.add(nose);
 
-    // U자 미소 (두 개의 호)
-    const mouthMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(INK), roughness: 0.4 });
+    // 코-입 연결 세로선 + :3 미소
+    const mouthMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(INK), roughness: 0.35 });
+    const stem = new THREE.Mesh(new THREE.CapsuleGeometry(0.007, 0.022, 4, 8), mouthMat);
+    stem.position.set(0, -0.064, 0.522);
+    this.headGroup.add(stem);
+
     this.mouths = [];
     for (const s of [-1, 1]) {
-      const arc = new THREE.Mesh(new THREE.TorusGeometry(0.036, 0.0095, 8, 20, Math.PI), mouthMat);
-      arc.position.set(s * 0.033, -0.142, 0.508);
+      const arc = new THREE.Mesh(new THREE.TorusGeometry(0.030, 0.0085, 8, 20, Math.PI), mouthMat);
+      arc.position.set(s * 0.029, -0.084, 0.515);
       arc.rotation.z = Math.PI;
       this.headGroup.add(arc);
       this.mouths.push(arc);
     }
 
-    // 볼터치 (아주 옅게)
     this.cheeks = [];
-    for (const s of [-1, 1]) {
-      const cheek = new THREE.Mesh(
-        new THREE.CircleGeometry(0.052, 18),
-        new THREE.MeshBasicMaterial({
-          color: new THREE.Color('#F6B7A8'),
-          transparent: true,
-          opacity: 0.16,
-          depthWrite: false,
-        })
-      );
-      cheek.position.set(s * 0.305, -0.055, 0.432);
-      cheek.rotation.set(-0.12, s * 0.32, 0);
-      this.headGroup.add(cheek);
-      this.cheeks.push(cheek);
-    }
 
     /* ---- 팔 ---- */
     this.arms = [];
