@@ -13,8 +13,8 @@
     />
     <title>CLUMI UNIVERSE : MY WEATHER ISLAND</title>
     <link rel="icon" href="./assets/logo.png" />
-    <script type="module" crossorigin src="./assets/index-DyEW2c4Q.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-UtzC5cod.css">
+    <script type="module" crossorigin src="./assets/index--j2TIg6n.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-D5qrj46L.css">
   </head>
   <body>
     <div id="stage">
@@ -76,10 +76,24 @@
         <button id="placingDone" class="sel-btn" type="button">완료</button>
       </div>
 
+      <div id="minigameBar" class="minigame-bar">
+        <span id="mgTime">⏱ 30s</span>
+        <span id="mgScore">✨ 0점</span>
+        <span id="mgCombo" class="mg-combo"></span>
+        <button id="mgQuitBtn" class="sel-btn danger" type="button">그만</button>
+      </div>
+
       <nav class="dock" aria-label="섬 도구">
         <div id="emotionChips" class="emotion-chips"></div>
         <div class="dock-divider"></div>
         <div class="dock-actions">
+          <button id="gameBtn" class="dock-btn" type="button" aria-label="구름 방울 미니게임">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path d="M6.5 9.5h11a3.5 3.5 0 0 1 3.4 4.2l-.7 3.2a2.4 2.4 0 0 1-4.1 1.1L14.5 16h-5L7.9 18a2.4 2.4 0 0 1-4.1-1.1l-.7-3.2A3.5 3.5 0 0 1 6.5 9.5Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+              <path d="M8.5 13h2m-1-1v2m5.5-1h.01M17 14h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+            </svg>
+            <span>게임</span>
+          </button>
           <button id="propsBtn" class="dock-btn" type="button" aria-label="섬 꾸미기">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
               <path d="M12 3.2 14 8l4.8 1.6L15 13.4 14.4 18 12 15.6 9.6 18l-.6-4.6L5.2 9.6 10 8Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
@@ -113,6 +127,27 @@
         <span class="foot-note">놓은 소품은 다시 눌러 옮기거나 지울 수 있어요</span>
       </footer>
     </section>
+
+    <!-- 미니게임 결과 -->
+    <div id="mgOverlay" class="overlay" aria-hidden="true">
+      <section class="sheet info mg-result" role="dialog" aria-modal="true" aria-labelledby="mgResultTitle">
+        <header class="sheet-head">
+          <div>
+            <h2 id="mgResultTitle">☁️ 구름 방울 잡기 완료!</h2>
+            <p id="mgResultSub">오늘의 마음 날씨 점수</p>
+          </div>
+          <button id="mgCloseBtn" class="icon-btn small" type="button" aria-label="닫기">×</button>
+        </header>
+        <div class="mg-score-box">
+          <div class="mg-big-score"><span id="mgFinalScore">0</span><small>점</small></div>
+          <p id="mgBestText" class="mg-best">최고 기록 0점</p>
+        </div>
+        <div class="mg-actions">
+          <button id="mgAgainBtn" class="start-btn" type="button">다시 하기</button>
+          <button id="mgBackBtn" class="ghost-btn" type="button">섬으로 돌아가기</button>
+        </div>
+      </section>
+    </div>
 
     <!-- 정보 -->
     <div id="infoOverlay" class="overlay" aria-hidden="true">
