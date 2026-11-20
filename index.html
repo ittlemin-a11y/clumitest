@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#FFFDF7" />
+    <meta
+      name="description"
+      content="CLUMI UNIVERSE : MY WEATHER ISLAND — 마음의 날씨로 꾸미는 3D 구름 섬"
+    />
+    <title>CLUMI UNIVERSE : MY WEATHER ISLAND</title>
+    <link rel="icon" href="./assets/logo.png" />
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <div id="stage">
+      <canvas id="scene" aria-label="3D 구름 섬"></canvas>
+    </div>
+
+    <div id="loader">
+      <span class="loader-dot"></span>
+      <span>구름을 모으는 중…</span>
+    </div>
+
+    <!-- 첫 화면 -->
+    <section id="title" class="title">
+      <div class="title-inner">
+        <img class="title-logo" src="./assets/logo.png" alt="CLUMI UNIVERSE" />
+        <p class="title-brand">CLUMI&nbsp;&nbsp;UNIVERSE</p>
+        <h1 class="title-heading">MY WEATHER<br /><span>ISLAND</span></h1>
+        <p class="title-tagline">“Every heart has its own weather.”</p>
+        <button id="startBtn" class="start-btn" type="button">
+          <span>START</span>
+          <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+            <path d="M5 12h13M12.5 6.5 19 12l-6.5 5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+        <p class="title-hint">섬을 드래그해 돌려보세요 · 오늘의 감정을 골라 날씨를 바꿔요</p>
+      </div>
+      <p class="title-foot">DECAF. COFFEE · 합정</p>
+    </section>
+
+    <!-- 인게임 HUD -->
+    <div id="hud" class="hud" aria-hidden="true">
+      <header class="topbar">
+        <div class="brand-card">
+          <img src="./assets/logo.png" alt="" class="brand-logo" />
+          <div class="brand-text">
+            <strong>MY WEATHER ISLAND</strong>
+            <span id="emotionLabel">기쁨 · Clumi</span>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <button id="infoBtn" class="icon-btn" type="button" aria-label="안내 열기">i</button>
+        </div>
+      </header>
+
+      <div id="hintPill" class="hint-pill">
+        <span>섬을 드래그해 돌리기 · 휠·핀치로 확대 · 클루미를 눌러보세요</span>
+      </div>
+
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+      <div id="selectionBar" class="selection-bar">
+        <span id="selectionName">나무</span>
+        <button id="deleteBtn" class="sel-btn danger" type="button">삭제</button>
+        <button id="doneBtn" class="sel-btn" type="button">완료</button>
+      </div>
+
+      <div id="placingBar" class="placing-bar">
+        <span id="placingName">나무 놓는 중</span>
+        <button id="placingDone" class="sel-btn" type="button">완료</button>
+      </div>
+
+      <nav class="dock" aria-label="섬 도구">
+        <div id="emotionChips" class="emotion-chips"></div>
+        <div class="dock-divider"></div>
+        <div class="dock-actions">
+          <button id="propsBtn" class="dock-btn" type="button" aria-label="섬 꾸미기">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path d="M12 3.2 14 8l4.8 1.6L15 13.4 14.4 18 12 15.6 9.6 18l-.6-4.6L5.2 9.6 10 8Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+            </svg>
+            <span>꾸미기</span>
+          </button>
+          <button id="shotBtn" class="dock-btn" type="button" aria-label="이미지로 저장">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <rect x="3.5" y="6.5" width="17" height="13" rx="3.4" fill="none" stroke="currentColor" stroke-width="1.5" />
+              <circle cx="12" cy="13" r="3.4" fill="none" stroke="currentColor" stroke-width="1.5" />
+              <path d="M8.4 6.5 9.6 4.4h4.8l1.2 2.1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+            </svg>
+            <span>이미지</span>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+    <!-- 꾸미기 트레이 -->
+    <section id="tray" class="sheet tray" aria-hidden="true">
+      <header class="sheet-head">
+        <div>
+          <h2>섬 꾸미기</h2>
+          <p>소품을 고른 뒤 섬을 터치하면 놓여요</p>
+        </div>
+        <button id="trayClose" class="icon-btn small" type="button" aria-label="닫기">×</button>
+      </header>
+      <div id="propGrid" class="prop-grid"></div>
+      <footer class="sheet-foot">
+        <button id="resetBtn" class="ghost-btn" type="button">전체 초기화</button>
+        <span class="foot-note">놓은 소품은 다시 눌러 옮기거나 지울 수 있어요</span>
+      </footer>
+    </section>
+
+    <!-- 정보 -->
+    <div id="infoOverlay" class="overlay" aria-hidden="true">
+      <section class="sheet info" role="dialog" aria-modal="true" aria-labelledby="infoTitle">
+        <header class="sheet-head">
+          <div>
+            <h2 id="infoTitle">이 섬에 대하여</h2>
+            <p>CLUMI UNIVERSE : MY WEATHER ISLAND</p>
+          </div>
+          <button id="infoClose" class="icon-btn small" type="button" aria-label="닫기">×</button>
+        </header>
+
+        <dl class="info-list">
+          <div>
+            <dt>3D 모델</dt>
+            <dd>지금 보이는 클루미는 <b>임시 3D 모델</b>이에요. <code>public/models/clumi.glb</code>를 넣으면 GLB 모델로 바뀝니다 (GLTFLoader 지원).</dd>
+          </div>
+          <div>
+            <dt>감정 컬러</dt>
+            <dd>7가지 감정의 컬러는 <code>src/config/emotions.js</code>에서 바꿀 수 있고, 아래에서 지금 감정의 색을 바로 조정할 수도 있어요.</dd>
+          </div>
+          <div>
+            <dt>저장</dt>
+            <dd>감정 날씨와 소품 위치는 이 브라우저에 자동 저장됩니다. 새로고침해도 그대로 이어져요.</dd>
+          </div>
+        </dl>
+
+        <div class="color-row">
+          <label for="colorInput">
+            <span>지금 감정 색</span>
+            <em id="colorEmotionName">기쁨 · Clumi</em>
+          </label>
+          <div class="color-tools">
+            <input id="colorInput" type="color" value="#F7C948" aria-label="감정 색 선택" />
+            <button id="colorReset" class="ghost-btn tiny" type="button">기본값</button>
+          </div>
+        </div>
+
+        <p class="info-foot">감정 7종 · 소품 8종 · Three.js + OrbitControls</p>
+      </section>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

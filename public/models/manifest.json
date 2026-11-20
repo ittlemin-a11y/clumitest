@@ -1,0 +1,5 @@
+{
+  "model": null,
+  "note": "public/models/clumi.glb 를 넣고 이 값을 \"clumi.glb\" 로 바꾸면 절차적 모델 대신 GLB 모델이 로드됩니다.",
+  "scaleHint": "모델은 자동으로 높이 2.15에 맞춰 조정되고 바닥이 지면에 맞춰집니다."
+}
